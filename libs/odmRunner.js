@@ -30,7 +30,7 @@ module.exports = {
         assert(projectName !== undefined, "projectName must be specified");
         assert(options["project-path"] !== undefined, "project-path must be defined");
 
-        const command = path.join(config.odm_path, "run.sh"),
+        const command = path.join(config.odm_path, os.platform() === "win32" ? "run.bat" : "run.sh"),
               params = [];
 
         for (var name in options){
@@ -71,6 +71,8 @@ module.exports = {
         }
 
         // Launch
+        const env = utils.clone(process.env);
+        env.ODM_NONINTERACTIVE = 1;
         let childProcess = spawn(command, params, {cwd: config.odm_path, env:env, shell: true});
 
         childProcess
@@ -117,7 +119,7 @@ module.exports = {
             // Launch
             const env = utils.clone(process.env);
             env.ODM_OPTIONS_TMP_FILE = utils.tmpPath(".json");
-            let childProcess = spawn("python", [path.join(__dirname, "..", "helpers", "odmOptionsToJson.py"),
+            let childProcess = spawn(pythonExe, [path.join(__dirname, "..", "helpers", "odmOptionsToJson.py"),
                 "--project-path", config.odm_path, "bogusname"], { cwd: undefined, env: env, shell: true });
 
             // Cleanup on done
